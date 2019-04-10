@@ -35,7 +35,7 @@
         <form string="instance">
             <field name="id" invisible="1"/>
             <field name="name" invisible="1"/>
-            <field name="docker_image_ids" invisible="1"/>
+        <!--<field name="docker_image_ids" invisible="1"/>-->
             <field name="advance_type" invisible="1"/>
             <field name="sources_type" invisible="1"/>
             <header>
@@ -184,7 +184,7 @@
                                 <field name="workers"/>
                             </group>
                             <group>
-                                <label for="odoo_image_id"/>
+                                <!--<label for="odoo_image_id"/>
                                 <div class="address_format">
                                     <field name="odoo_image_id" options="{'no_create': True}" style="width: 75%" />
                                     <field name="odoo_image_tag_id" options="{'no_create': True}" style="width: 24%" />
@@ -193,7 +193,7 @@
                                 <div class="address_format">
                                     <field name="pg_image_id" options="{'no_create': True}" style="width: 75%" />
                                     <field name="pg_image_tag_id" options="{'no_create': True}" style="width: 24%" />
-                                </div>
+                                </div>-->
                                 <label for="odoo_container"/>
                                 <div>
                                     <field name="odoo_container" class="oe_inline"/>

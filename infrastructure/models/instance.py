@@ -300,44 +300,44 @@ class instance(models.Model):
         store=True,
         readonly=True
         )
-    docker_image_ids = fields.Many2many(
-        'infrastructure.docker_image',
-        string='Docker Images',
-        compute='_get_docker_images',
-        )
-    odoo_image_id = fields.Many2one(
-        'infrastructure.docker_image',
-        string='Odoo Image',
-        required=True,
-        readonly=True,
-        domain="[('id', 'in', docker_image_ids[0][2]),"
-        "('service', '=', 'odoo')]",
-        states={'draft': [('readonly', False)]}
-        )
-    odoo_image_tag_id = fields.Many2one(
-        'infrastructure.docker_image.tag',
-        string='Tag',
-        required=True,
-        readonly=True,
-        domain="[('docker_image_id', '=', odoo_image_id)]",
-        states={'draft': [('readonly', False)]}
-        )
-    pg_image_id = fields.Many2one(
-        'infrastructure.docker_image',
-        string='Postgres Image',
-        required=True,
-        readonly=True,
-        domain="[('odoo_image_ids', '=', odoo_image_id)]",
-        states={'draft': [('readonly', False)]}
-        )
-    pg_image_tag_id = fields.Many2one(
-        'infrastructure.docker_image.tag',
-        string='Tag',
-        required=True,
-        readonly=True,
-        domain="[('docker_image_id', '=', pg_image_id)]",
-        states={'draft': [('readonly', False)]}
-        )
+#     docker_image_ids = fields.Many2many(
+#         'infrastructure.docker_image',
+#         string='Docker Images',
+#         compute='_get_docker_images',
+#         )
+#     odoo_image_id = fields.Many2one(
+#         'infrastructure.docker_image',
+#         string='Odoo Image',
+#         required=True,
+#         readonly=True,
+#         domain="[('id', 'in', docker_image_ids[0][2]),"
+#         "('service', '=', 'odoo')]",
+#         states={'draft': [('readonly', False)]}
+#         )
+#     odoo_image_tag_id = fields.Many2one(
+#         'infrastructure.docker_image.tag',
+#         string='Tag',
+#         required=True,
+#         readonly=True,
+#         domain="[('docker_image_id', '=', odoo_image_id)]",
+#         states={'draft': [('readonly', False)]}
+#         )
+#     pg_image_id = fields.Many2one(
+#         'infrastructure.docker_image',
+#         string='Postgres Image',
+#         required=True,
+#         readonly=True,
+#         domain="[('odoo_image_ids', '=', odoo_image_id)]",
+#         states={'draft': [('readonly', False)]}
+#         )
+#     pg_image_tag_id = fields.Many2one(
+#         'infrastructure.docker_image.tag',
+#         string='Tag',
+#         required=True,
+#         readonly=True,
+#         domain="[('docker_image_id', '=', pg_image_id)]",
+#         states={'draft': [('readonly', False)]}
+#         )
     odoo_sufix = fields.Char(
         string='Odoo Sufix',
         help='Commonly used only on debuggin, use for eg. "-u all"'
@@ -585,13 +585,13 @@ class instance(models.Model):
             self.main_hostname = main_hostname
             self.main_hostname_id = main_host[0].id
 
-    @api.one
-    @api.depends('server_id')
-    def _get_docker_images(self):
-        self.docker_image_ids = self.env['infrastructure.docker_image']
-        self.docker_image_ids = [
-            x.docker_image_id.id for x in (
-                self.server_id.server_docker_image_ids)]
+#     @api.one
+#     @api.depends('server_id')
+#     def _get_docker_images(self):
+#         self.docker_image_ids = self.env['infrastructure.docker_image']
+#         self.docker_image_ids = [
+#             x.docker_image_id.id for x in (
+#                 self.server_id.server_docker_image_ids)]
 
     @api.one
     @api.depends(
@@ -684,7 +684,7 @@ class instance(models.Model):
     @api.one
     @api.depends(
         'environment_id',
-        'odoo_image_id.odoo_server_wide_modules',
+#        'odoo_image_id.odoo_server_wide_modules',
         'sources_from_id.module_load',
     )
     def _get_module_load(self):
@@ -696,9 +696,9 @@ class instance(models.Model):
                     self.instance_repository_ids) if (
                         x.repository_id.server_wide_modules)])
             # if module_load:
-            self.module_load = (
-                (self.odoo_image_id.odoo_server_wide_modules or '') +
-                (module_load or ''))
+#             self.module_load = (
+#                 (self.odoo_image_id.odoo_server_wide_modules or '') +
+#                 (module_load or ''))
 
     @api.one
     @api.depends('database_ids')
@@ -771,47 +771,47 @@ class instance(models.Model):
                     self.instance_repository_ids) if x.repository_id.addons_path]
             self.addons_path = ','.join(addons_paths)
 
-    @api.onchange('environment_id')
-    def _onchange_environment(self):
-        environment = self.environment_id
-        # Get same env instances for database type and instance number
-        instances = self.search(
-            [('environment_id', '=', environment.id)],
-            order='number desc',
-            )
-        actual_db_type_ids = [x.database_type_id.id for x in instances]
-        self.number = instances and instances[0].number + 1 or 1
-        self.database_type_id = self.env[
-            'infrastructure.database_type'].search(
-                [('id', 'not in', actual_db_type_ids)],
-                limit=1
-                )
+#     @api.onchange('environment_id')
+#     def _onchange_environment(self):
+#         environment = self.environment_id
+#         # Get same env instances for database type and instance number
+#         instances = self.search(
+#             [('environment_id', '=', environment.id)],
+#             order='number desc',
+#             )
+#         actual_db_type_ids = [x.database_type_id.id for x in instances]
+#         self.number = instances and instances[0].number + 1 or 1
+#         self.database_type_id = self.env[
+#             'infrastructure.database_type'].search(
+#                 [('id', 'not in', actual_db_type_ids)],
+#                 limit=1
+#                 )
+# 
+#         # get docker images
+#         docker_image_ids = [
+#             x.docker_image_id.id for x in (
+#                 environment.server_id.server_docker_image_ids)]
+#         docker_images = self.env['infrastructure.docker_image']
+#         odoo_images = docker_images.search([
+#             ('service', '=', 'odoo'),
+#             ('id', 'in', docker_image_ids),
+#             ('odoo_version_id', '=', self.environment_id.odoo_version_id.id)
+#             ], limit=1)
+#         self.odoo_image_id = odoo_images
 
-        # get docker images
-        docker_image_ids = [
-            x.docker_image_id.id for x in (
-                environment.server_id.server_docker_image_ids)]
-        docker_images = self.env['infrastructure.docker_image']
-        odoo_images = docker_images.search([
-            ('service', '=', 'odoo'),
-            ('id', 'in', docker_image_ids),
-            ('odoo_version_id', '=', self.environment_id.odoo_version_id.id)
-            ], limit=1)
-        self.odoo_image_id = odoo_images
-
-    @api.onchange('odoo_image_id')
-    def _onchange_docker_image(self):
-        tags = self.odoo_image_id.tag_ids
-        pg_images = self.odoo_image_id.pg_image_ids
-        self.odoo_image_tag_id = tags and tags[0] or False
-        self.pg_image_id = pg_images and pg_images[0] or False
-
-    @api.onchange('pg_image_id')
-    def _onchange_pg_image(self):
-        if self.pg_image_id.tag_ids:
-            self.pg_image_tag_id = self.pg_image_id.tag_ids[0]
-        else:
-            self.pg_image_tag_id = False
+#     @api.onchange('odoo_image_id')
+#     def _onchange_docker_image(self):
+#         tags = self.odoo_image_id.tag_ids
+#         pg_images = self.odoo_image_id.pg_image_ids
+#         self.odoo_image_tag_id = tags and tags[0] or False
+#         self.pg_image_id = pg_images and pg_images[0] or False
+# 
+#     @api.onchange('pg_image_id')
+#     def _onchange_pg_image(self):
+#         if self.pg_image_id.tag_ids:
+#             self.pg_image_tag_id = self.pg_image_id.tag_ids[0]
+#         else:
+#             self.pg_image_tag_id = False
 
     @api.one
     @api.depends('name', 'number', 'environment_id')
@@ -908,42 +908,43 @@ class instance(models.Model):
         self.make_paths()
         self.update_nginx_site()
         # we only pull repositories if image has an extra addons dir set
-        if self.odoo_image_id.odoo_extra_addons_dir:
-            self.add_repositories()
-            self.instance_repository_ids.repository_pull_clone_and_checkout(
-                update=False)
+#         if self.odoo_image_id.odoo_extra_addons_dir:
+#             self.add_repositories()
+#             self.instance_repository_ids.repository_pull_clone_and_checkout(
+#                 update=False)
         # remove containers if the exists
         self.remove_odoo_service()
         self.remove_pg_service()
         self.run_pg_service()
         # we only pull repositories if image has an etc dir set
-        if self.odoo_image_id.odoo_etc_dir:
-            self.update_conf_file()
+#         if self.odoo_image_id.odoo_etc_dir:
+#             self.update_conf_file()
         self.run_odoo_service()
         self.action_activate()
 
     @api.one
     def get_commands(self):
-
+ 
         pg_volume_links = (
             '-v %s:/var/lib/postgresql/data' % self.pg_data_path)
         odoo_port_links = (
             '-p 127.0.0.1:%i:8069 -p 127.0.0.1:%i:8072') % (
             self.xml_rpc_port, self.longpolling_port)
-        odoo_volume_links = '-v %s:%s ' % (
-            self.data_dir, self.odoo_image_id.odoo_data_dir)
-
-        if self.odoo_image_id.odoo_etc_dir:
-            odoo_volume_links += '-v %s:%s ' % (
-                self.conf_path, self.odoo_image_id.odoo_etc_dir)
-
-        if self.odoo_image_id.odoo_extra_addons_dir:
-            odoo_volume_links += '-v %s:%s ' % (
-                self.sources_path, self.odoo_image_id.odoo_extra_addons_dir)
-
+        odoo_volume_links = ''
+#         odoo_volume_links = '-v %s:%s ' % (
+#             self.data_dir, self.odoo_image_id.odoo_data_dir)
+ 
+#         if self.odoo_image_id.odoo_etc_dir:
+#             odoo_volume_links += '-v %s:%s ' % (
+#                 self.conf_path, self.odoo_image_id.odoo_etc_dir)
+#  
+#         if self.odoo_image_id.odoo_extra_addons_dir:
+#             odoo_volume_links += '-v %s:%s ' % (
+#                 self.sources_path, self.odoo_image_id.odoo_extra_addons_dir)
+ 
         odoo_volume_links += '-v %s:%s ' % (
             self.server_id.backups_path, self.server_id.backups_path)
-
+ 
         odoo_volume_links += '-e WORKERS=%s ' % self.workers
         odoo_volume_links += '-e ADMIN_PASSWORD=%s ' % self.admin_pass
         if self.db_maxconn:
@@ -958,102 +959,99 @@ class instance(models.Model):
         if self.module_load:
             odoo_volume_links += '-e SERVER_WIDE_MODULES=%s ' % (
                 self.module_load)
-
+ 
         odoo_pg_link = '--link %s:db' % self.pg_container
-
+ 
         if self.service_type == 'docker':
             prefix = '--restart=always -d'
         else:
             # no usamos mas el --rm porque si no queda colgado al levantar
             # comoservicio
             prefix = '-d'
-
+ 
         # build images names
-        odoo_image_name = '%s:%s' % (
-            self.odoo_image_id.pull_name, self.odoo_image_tag_id.name)
-        pg_image_name = '%s:%s' % (
-            self.pg_image_id.pull_name, self.pg_image_tag_id.name)
-
+#         odoo_image_name = '%s:%s' % (
+#             self.odoo_image_id.pull_name, self.odoo_image_tag_id.name)
+#         pg_image_name = '%s:%s' % (
+#             self.pg_image_id.pull_name, self.pg_image_tag_id.name)
+ 
         # build sufix
         odoo_sufix = self.odoo_sufix and ' %s' % self.odoo_sufix or ''
         if self.module_load:
             odoo_sufix += ' --load=%s' % (self.module_load or '')
-
+ 
         # odoo run prefix commands
-        odoo_run_prefix = "%s %s %s" % (
-            self.odoo_image_id.prefix or '',
-            self.database_type_id.odoo_run_prefix or '',
-            self.odoo_custom_commands or '',
-        )
-
+#         odoo_run_prefix = "%s %s %s" % (
+#             self.odoo_image_id.prefix or '',
+#             self.database_type_id.odoo_run_prefix or '',
+#             self.odoo_custom_commands or '',
+#         )
+ 
         # odoo run base command
-        run_odoo_d_cmd = 'docker run %s %s %s %s %s --name %s %s' % (
+        odoo_run_prefix = ''
+        run_odoo_d_cmd = 'docker run %s %s %s %s %s --name %s' % (
             prefix, odoo_run_prefix,
             odoo_port_links, odoo_volume_links, odoo_pg_link,
-            self.odoo_container, odoo_image_name)
-        run_odoo_rm_cmd = 'docker run %s %s %s %s %s --name %s %s' % (
+            self.odoo_container)
+        run_odoo_rm_cmd = 'docker run %s %s %s %s %s --name %s' % (
             '--rm -ti', odoo_run_prefix,
             odoo_port_links, odoo_volume_links, odoo_pg_link,
-            self.odoo_container, odoo_image_name)
-
+            self.odoo_container)
+ 
         # odoo start commands
         self.run_odoo_cmd = '%s -- %s' % (run_odoo_d_cmd, odoo_sufix)
-
+ 
         # odoo command for update conf
         self.update_conf_cmd = '%s -- %s' % (
             run_odoo_rm_cmd, self.get_update_conf_command_sufix())
-
+ 
         # odoo update all command
         self.update_cmd = '%s -- %s' % (
             run_odoo_rm_cmd, '--stop-after-init --workers=0')
-
+ 
         # todo eliminar tal vez el update all
         self.update_all_cmd = '%s -- %s' % (
             run_odoo_rm_cmd, '--stop-after-init --workers=0 -u all')
-
+ 
         # run attached commands
         self.run_attach_odoo_cmd = (
-            'docker run %s %s %s %s %s --name %s %s %s' % (
+            'docker run %s %s %s %s %s --name %s %s' % (
                 '-ti --rm -u root', odoo_run_prefix,
                 odoo_port_links, odoo_volume_links, odoo_pg_link,
-                self.odoo_container, odoo_image_name, '/bin/bash'))
-
+                self.odoo_container, '/bin/bash'))
+ 
         user = 'odoo'
         if self.odoo_version in ('7.0'):
             user = 'openerp'
-
+ 
         self.start_attached_odoo_cmd = (
             'runuser -u %s openerp-server -- -c /etc/odoo/openerp-server.conf '
             '--logfile=False %s' % (
                 user, odoo_sufix))
-
-        postgres_run_prefix = "%s %s %s" % (
-            self.pg_image_id.prefix or '',
-            self.database_type_id.postgres_run_prefix or '',
-            self.pg_custom_commands or '',
-        )
-
+ 
+        postgres_run_prefix = ""
+ 
         # pg start command
-        self.run_pg_cmd = 'docker run %s %s %s --name %s %s' % (
+        self.run_pg_cmd = 'docker run %s %s %s --name %s' % (
             prefix, postgres_run_prefix, pg_volume_links,
-            self.pg_container, pg_image_name)
-
+            self.pg_container)
+ 
         # kill commands
         self.remove_odoo_cmd = 'docker rm -f %s' % self.odoo_container
         self.remove_pg_cmd = 'docker rm -f %s' % self.pg_container
-
+ 
         # stop commands
         self.stop_odoo_cmd = 'docker stop %s' % self.odoo_container
         self.stop_pg_cmd = 'docker stop %s' % self.pg_container
-
+ 
         # start commands
         self.start_odoo_cmd = 'docker start %s' % self.odoo_container
         self.start_pg_cmd = 'docker start %s' % self.pg_container
-
+ 
         # restart commands
         self.restart_odoo_cmd = 'docker restart %s' % self.odoo_container
         self.restart_pg_cmd = 'docker restart %s' % self.pg_container
-
+ 
         # Logs
         self.odoo_log_cmd = 'tail -f %s' % self.logfile
         self.pg_log_cmd = 'docker logs -f %s' % self.pg_container

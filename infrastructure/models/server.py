@@ -185,7 +185,7 @@ class server(models.Model):
         required=True,
         readonly=True,
         states={'draft': [('readonly', False)]},
-        help='Owner of the server, the one you should contacto to make '
+        help='Owner of the server, the one you should contact to make '
         'changes on, for example, hardware.'
     )
     used_by_id = fields.Many2one(
@@ -233,50 +233,6 @@ class server(models.Model):
         states={'draft': [('readonly', False)]},
         default='/etc/nginx/ssl',
     )
-    afip_homo_pkey_file = fields.Char(
-        string='AFIP homo pkey file',
-        readonly=True,
-        states={'draft': [('readonly', False)]},
-        default='/opt/odoo/backups/homo.pkey',
-    )
-    afip_prod_pkey_file = fields.Char(
-        string='AFIP prod pkey file',
-        readonly=True,
-        states={'draft': [('readonly', False)]},
-        default='/opt/odoo/backups/prod.pkey',
-    )
-    afip_homo_cert_file = fields.Char(
-        string='AFIP homo cert file',
-        readonly=True,
-        states={'draft': [('readonly', False)]},
-        default='/opt/odoo/backups/homo.cert',
-    )
-    afip_prod_cert_file = fields.Char(
-        string='AFIP prod cert file',
-        readonly=True,
-        states={'draft': [('readonly', False)]},
-        default='/opt/odoo/backups/prod.cert',
-    )
-    afip_prod_cert_content = fields.Text(
-        string='AFIP prod cert Content',
-        readonly=True,
-        states={'draft': [('readonly', False)]},
-    )
-    afip_homo_cert_content = fields.Text(
-        string='AFIP homo cert Content',
-        readonly=True,
-        states={'draft': [('readonly', False)]},
-    )
-    afip_prod_pkey_content = fields.Text(
-        string='AFIP prod pkey Content',
-        readonly=True,
-        states={'draft': [('readonly', False)]},
-    )
-    afip_homo_pkey_content = fields.Text(
-        string='AFIP homo pkey Content',
-        readonly=True,
-        states={'draft': [('readonly', False)]},
-    )
     backups_path = fields.Char(
         string='Backups Path',
         readonly=True,
@@ -316,26 +272,6 @@ class server(models.Model):
         states={'draft': [('readonly', False)]},
         default='/etc/nginx/sites-enabled',
     )
-    nginx_sites_path = fields.Char(
-        string='Nginx Sites Path',
-        readonly=True,
-        required=True,
-        states={'draft': [('readonly', False)]},
-        default='/etc/nginx/sites-enabled',
-    )
-    gdrive_account = fields.Char(
-        string='Gdrive Account',
-        readonly=True,
-        states={'draft': [('readonly', False)]},
-    )
-    gdrive_passw = fields.Char(
-        string='Gdrive Password',
-        readonly=True,
-        states={'draft': [('readonly', False)]},
-    )
-    gdrive_space = fields.Char(
-        string='Gdrive Space',
-    )
     requires_vpn = fields.Boolean(
         string='Requires VPN?',
     )
@@ -344,11 +280,11 @@ class server(models.Model):
         string="State",
         default='draft',
     )
-    server_docker_image_ids = fields.One2many(
-        'infrastructure.server_docker_image',
-        'server_id',
-        string='Docker Images',
-    )
+#     server_docker_image_ids = fields.One2many(
+#         'infrastructure.server_docker_image',
+#         'server_id',
+#         string='Docker Images',
+#     )
     hostname_ids = fields.One2many(
         'infrastructure.server_hostname',
         'server_id',
@@ -557,19 +493,19 @@ class server(models.Model):
         raise ValidationError(_(
             'Connection successful!'))
 
-    @api.multi
-    def add_images(self):
-        actual_docker_images = [
-            x.docker_image_id.id for x in self.server_docker_image_ids]
-        images = self.env['infrastructure.docker_image'].search([
-            ('id', 'not in', actual_docker_images),
-        ])
-        for image in images:
-            vals = {
-                'docker_image_id': image.id,
-                'server_id': self.id,
-            }
-            self.server_docker_image_ids.create(vals)
+#     @api.multi
+#     def add_images(self):
+#         actual_docker_images = [
+#             x.docker_image_id.id for x in self.server_docker_image_ids]
+#         images = self.env['infrastructure.docker_image'].search([
+#             ('id', 'not in', actual_docker_images),
+#         ])
+#         for image in images:
+#             vals = {
+#                 'docker_image_id': image.id,
+#                 'server_id': self.id,
+#             }
+#             self.server_docker_image_ids.create(vals)
 
     @api.multi
     def configure_hosts(self):
@@ -599,38 +535,6 @@ class server(models.Model):
             _("Password for user '%s':") % self.user_name,
             _("%s") % self.password
         )
-
-    @api.multi
-    def show_gdrive_passwd(self):
-        self.ensure_one()
-        raise except_orm(
-            _("Password for user '%s':") % self.gdrive_account,
-            _("%s") % self.gdrive_passw
-        )
-
-    @api.multi
-    def configure_gdrive_sync(self):
-        self.get_env()
-        if not self.gdrive_account or not self.gdrive_passw:
-            raise ValidationError(_(
-                'To configure google drive sync you need to set account and '
-                'password'))
-        fabtools.require.deb.ppa('ppa:twodopeshaggy/drive')
-        fabtools.require.deb.package('drive')
-        fabtools.require.files.directory(
-            self.syncked_backups_path, use_sudo=True, mode='777')
-        fabtools.cron.add_task(
-            'bu_push_tu_drive',
-            '0 4 * * *',
-            'root',
-            'drive push -quiet -ignore-conflict=true %s' % (
-                self.syncked_backups_path))
-        raise ValidationError(_(
-            'Please log in into the server and run:\n'
-            'sudo drive init %s\n'
-            'Follow onscreen steps') % (
-            self.syncked_backups_path,
-        ))
 
     @api.multi
     def reboot_server(self):
@@ -718,46 +622,46 @@ class server(models.Model):
             return os.path.dirname(unicode(sys.executable, encoding))
         return os.path.dirname(unicode(__file__, encoding))
 
-    @api.multi
-    def install_postfix(self):
-        # def install_postfix(mailname):
-        """
-        Require a Postfix email server.
-
-        This makes sure that Postfix is installed and started.
-
-        ::
-
-            from fabtools import require
-
-            # Handle incoming email for our domain
-            require.postfix.server('example.com')
-
-        """
-        self.get_env()
-        self.copy_mailgate_file()
-        # Ensure the package is installed
-        if not is_installed('postfix'):
-            preseed_package('postfix', {
-                'postfix/main_mailer_type': ('select', 'Internet Site'),
-                'postfix/mailname': ('string', self.postfix_hostname),
-                'postfix/destinations': (
-                    'string', '%s, localhost.localdomain, localhost ' % (
-                        self.postfix_hostname),)
-            })
-            install('postfix')
-
-        # Update postfix conf
-        custom_sudo("postconf -e 'virtual_alias_domains = regexp:%s'" % (
-            self.virtual_domains_regex_path))
-        custom_sudo("postconf -e 'virtual_alias_maps = hash:%s'" % (
-            self.virtual_alias_path))
-
-        # Restart postfix
-        custom_sudo('service postfix restart')
-
-        # Ensure the service is started
-        started('postfix')
+#     @api.multi
+#     def install_postfix(self):
+#         # def install_postfix(mailname):
+#         """
+#         Require a Postfix email server.
+# 
+#         This makes sure that Postfix is installed and started.
+# 
+#         ::
+# 
+#             from fabtools import require
+# 
+#             # Handle incoming email for our domain
+#             require.postfix.server('example.com')
+# 
+#         """
+#         self.get_env()
+#         self.copy_mailgate_file()
+#         # Ensure the package is installed
+#         if not is_installed('postfix'):
+#             preseed_package('postfix', {
+#                 'postfix/main_mailer_type': ('select', 'Internet Site'),
+#                 'postfix/mailname': ('string', self.postfix_hostname),
+#                 'postfix/destinations': (
+#                     'string', '%s, localhost.localdomain, localhost ' % (
+#                         self.postfix_hostname),)
+#             })
+#             install('postfix')
+# 
+#         # Update postfix conf
+#         custom_sudo("postconf -e 'virtual_alias_domains = regexp:%s'" % (
+#             self.virtual_domains_regex_path))
+#         custom_sudo("postconf -e 'virtual_alias_maps = hash:%s'" % (
+#             self.virtual_alias_path))
+# 
+#         # Restart postfix
+#         custom_sudo('service postfix restart')
+# 
+#         # Ensure the service is started
+#         started('postfix')
 
     @api.multi
     def action_view_environments(self):
