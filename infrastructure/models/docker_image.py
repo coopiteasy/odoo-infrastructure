@@ -36,22 +36,22 @@ class infrastructure_docker_image(models.Model):
         default='odoo',
         required=True,
     )
-    pg_image_ids = fields.Many2many(
-        'infrastructure.docker_image',
-        'infrastructure_odoo_pg_image_rel',
-        'odoo_image_id', 'pg_image_id',
-        string='Postgresql Images',
-        domain=[('service', '=', 'postgresql')],
-        help='Compatible Postgresql Images',
-    )
-    odoo_image_ids = fields.Many2many(
-        'infrastructure.docker_image',
-        'infrastructure_odoo_pg_image_rel',
-        'pg_image_id', 'odoo_image_id',
-        string='Odoo Images',
-        domain=[('service', '=', 'odoo')],
-        help='Compatible Odoo Images',
-    )
+#     pg_image_ids = fields.Many2many(
+#         'infrastructure.docker_image',
+#         'infrastructure_odoo_pg_image_rel',
+#         'odoo_image_id', 'pg_image_id',
+#         string='Postgresql Images',
+#         domain=[('service', '=', 'postgresql')],
+#         help='Compatible Postgresql Images',
+#     )
+#     odoo_image_ids = fields.Many2many(
+#         'infrastructure.docker_image',
+#         'infrastructure_odoo_pg_image_rel',
+#         'pg_image_id', 'odoo_image_id',
+#         string='Odoo Images',
+#         domain=[('service', '=', 'odoo')],
+#         help='Compatible Odoo Images',
+#     )
     odoo_data_dir = fields.Char(
     )
     odoo_extra_addons_dir = fields.Char(
@@ -62,22 +62,22 @@ class infrastructure_docker_image(models.Model):
     )
 
 
-class infrastructure_docker_image_tag(models.Model):
-    _name = 'infrastructure.docker_image.tag'
-    _description = 'Docker Image Tag'
-    _order = 'sequence'
-
-    name = fields.Char(
-        'Name',
-        required=True,
-    )
-    sequence = fields.Integer(
-        'Name',
-        default=10,
-    )
-    docker_image_id = fields.Many2one(
-        'infrastructure.docker_image',
-        'Name',
-        required=True,
-        ondelete='cascade',
-    )
+# class infrastructure_docker_image_tag(models.Model):
+#     _name = 'infrastructure.docker_image.tag'
+#     _description = 'Docker Image Tag'
+#     _order = 'sequence'
+# 
+#     name = fields.Char(
+#         'Name',
+#         required=True,
+#     )
+#     sequence = fields.Integer(
+#         'Name',
+#         default=10,
+#     )
+#     docker_image_id = fields.Many2one(
+#         'infrastructure.docker_image',
+#         'Name',
+#         required=True,
+#         ondelete='cascade',
+#     )

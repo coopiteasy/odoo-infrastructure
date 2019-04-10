@@ -24,8 +24,8 @@ from . import server_change
 from . import server_configuration
 from . import server_configuration_command
 from . import server_hostname
-from . import docker_image
-from . import server_docker_image
+#from . import docker_image
+#from . import server_docker_image
 # To avoid error with auto generated certificates:
 try:
     import ssl
