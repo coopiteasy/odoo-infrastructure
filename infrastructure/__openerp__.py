@@ -27,9 +27,7 @@
     'license': 'AGPL-3',
     'depends': [
         'mail',
-        # 'web_widget_many2many_tags_multi_selection',
         'server_mode',
-        # 'web_ir_actions_act_window_message',
     ],
     'external_dependencies': {
         'python': ['fabric', 'fabtools', 'erppeek']
@@ -87,7 +85,7 @@
         'demo/infrastructure.repository.csv',
         'demo/infrastructure.server_configuration.csv',
         'demo/infrastructure.server_configuration_command.csv',
-#        'demo/infrastructure.server.csv',
+        'demo/infrastructure.server.csv',
         'demo/infrastructure.server_hostname.csv',
         'demo/infrastructure.odoo_version.csv',
 #         'demo/infrastructure.docker_image.csv',
@@ -95,7 +93,7 @@
         'demo/infrastructure.environment.csv',
         'demo/infrastructure.db_filter.csv',
         'demo/infrastructure.database_type.csv',
-#        'demo/infrastructure.instance.csv',
+        'demo/infrastructure.instance.csv',
         'demo/infrastructure.instance_host.csv',
         'demo/infrastructure.database.csv',
         'demo/infrastructure.base.module.csv',
